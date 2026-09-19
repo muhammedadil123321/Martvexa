@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Back face (shadow) -->
+  <rect x="3" y="3" width="26" height="26" rx="6" fill="#6b6b6b"/>
+  <!-- Front face -->
+  <rect x="1" y="1" width="26" height="26" rx="6" fill="#0a0a0a"/>
+  <!-- Letter M -->
+  <text x="14" y="21" font-family="Outfit, Inter, sans-serif" font-weight="700"
+        font-size="16" fill="white" text-anchor="middle">M</text>
+</svg>

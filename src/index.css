@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-brand-white text-brand-charcoal font-sans antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
+
+  ::selection {
+    @apply bg-brand-black text-brand-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-brand-offwhite;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-ash rounded-full;
+  }
+}
+
+@layer components {
+  /* ─── Buttons ─────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-brand-black text-brand-white
+           px-6 py-3.5 rounded-xl
+           font-medium text-sm tracking-wide
+           transition-all duration-200
+           hover:bg-brand-graphite active:scale-95
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-black focus-visible:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           border border-brand-black text-brand-black bg-transparent
+           px-6 py-3.5 rounded-xl
+           font-medium text-sm tracking-wide
+           transition-all duration-200
+           hover:bg-brand-black hover:text-brand-white
+           active:scale-95
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-brand-black focus-visible:ring-offset-2;
+  }
+
+  .btn-whatsapp {
+    @apply inline-flex items-center justify-center gap-3
+           bg-[#25D366] text-white
+           px-8 py-4 rounded-xl
+           font-semibold text-base tracking-wide
+           shadow-medium
+           transition-all duration-200
+           hover:bg-[#1ebe5a] hover:shadow-strong
+           active:scale-95
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-[#25D366] focus-visible:ring-offset-2;
+  }
+
+  /* ─── Cards ──────────────────────────────────────────────── */
+  .product-card {
+    @apply bg-brand-white rounded-2xl overflow-hidden
+           shadow-card border border-brand-smoke
+           transition-all duration-300
+           hover:shadow-strong hover:-translate-y-1;
+  }
+
+  /* ─── Badges ─────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1.5
+           px-3 py-1 rounded-full
+           text-xs font-medium tracking-wide;
+  }
+  .badge-dark  { @apply badge bg-brand-black text-brand-white; }
+  .badge-light { @apply badge bg-brand-smoke text-brand-graphite; }
+  .badge-outline { @apply badge border border-brand-iron text-brand-iron; }
+
+  /* ─── Section headings ───────────────────────────────────── */
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-brand-ash;
+  }
+  .section-heading {
+    @apply font-display font-bold text-brand-black leading-tight;
+  }
+
+  /* ─── Trust badge strip ──────────────────────────────────── */
+  .trust-item {
+    @apply flex flex-col items-center gap-2 text-center px-4;
+  }
+  .trust-icon-wrap {
+    @apply w-12 h-12 rounded-full bg-brand-offwhite
+           flex items-center justify-center
+           border border-brand-smoke;
+  }
+
+  /* ─── Dividers ───────────────────────────────────────────── */
+  .divider { @apply border-t border-brand-smoke; }
+}
+
+@layer utilities {
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+  .animate-delay-400 { animation-delay: 0.4s; }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #0a0a0a 0%, #6b6b6b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-dark {
+    background: rgba(10, 10, 10, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
