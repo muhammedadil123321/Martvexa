@@ -18,9 +18,9 @@ const NAV_LINKS = [
 ];
 
 const TRUST_ITEMS = [
-  { icon: Truck, label: "Free Delivery For Prepaid Orders" },
+  
   { icon: ShieldCheck, label: "Easy & Secure Ordering" },
-  { icon: CheckCircle2, label: "Carefully Selected Products" },
+
   { icon: BadgeCheck, label: "Premium Quality Assured" },
   { icon: MessageCircle, label: "24/7 WhatsApp Customer Support" },
 ];

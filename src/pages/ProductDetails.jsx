@@ -10,10 +10,8 @@ import {
   Plus,
   Minus,
   Truck,
-  Sparkles,
   Award,
   Lock,
-  ShieldCheck,
 } from "lucide-react";
 import { products } from "../data/products";
 import ProductMedia from "../components/ProductMedia";
@@ -21,7 +19,7 @@ import ProductMedia from "../components/ProductMedia";
 /* ============================================================
     WHATSAPP CONFIG & LINK BUILDER
 ============================================================ */
-const WHATSAPP_NUMBER = "910000000000"; // TODO: Replace with real WhatsApp number
+const WHATSAPP_NUMBER = "+918891900699"; // TODO: Replace with real WhatsApp number
 
 function buildWhatsAppLink(product, paymentMethod = "prepaid") {
   const codCharge = product.codCharge ?? 0;
@@ -44,7 +42,23 @@ function buildWhatsAppLink(product, paymentMethod = "prepaid") {
 }
 
 /* ============================================================
-    PRODUCT BENEFITS BANNER WITH 3s SNAKE BORDER ANIMATION
+    PARTICLE BURST COMPONENT
+============================================================ */
+function ParticleBurst() {
+  return (
+    <div aria-hidden="true" className="absolute inset-0 pointer-events-none flex items-center justify-center">
+      <span className="absolute w-2 h-2 rounded-full bg-[#2E7D32] animate-[spark-1_0.6s_ease-out_forwards]" />
+      <span className="absolute w-2 h-2 rounded-full bg-[#A9812F] animate-[spark-2_0.6s_ease-out_forwards]" />
+      <span className="absolute w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-[spark-3_0.6s_ease-out_forwards]" />
+      <span className="absolute w-2 h-2 rounded-full bg-[#FFB300] animate-[spark-4_0.6s_ease-out_forwards]" />
+      <span className="absolute w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-[spark-5_0.6s_ease-out_forwards]" />
+      <span className="absolute w-2 h-2 rounded-full bg-[#A9812F] animate-[spark-6_0.6s_ease-out_forwards]" />
+    </div>
+  );
+}
+
+/* ============================================================
+    PRODUCT BENEFITS BANNER
 ============================================================ */
 function ProductBenefits({ isEligible }) {
   const items = [
@@ -57,13 +71,11 @@ function ProductBenefits({ isEligible }) {
 
   return (
     <div className="relative p-[1.5px] rounded-[18px] overflow-hidden my-1 shadow-[0_10px_25px_-15px_rgba(169,129,47,0.25)]">
-      {/* Snake Border Gradient Animation Loop */}
       <div 
         aria-hidden="true" 
         className="absolute inset-[-200%] animate-[snake-spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_300deg,#A9812F_340deg,#E6CA65_360deg)] opacity-90" 
       />
 
-      {/* Inner Card Content */}
       <div
         role="group"
         aria-label="Order benefits"
@@ -85,7 +97,7 @@ function ProductBenefits({ isEligible }) {
 }
 
 /* ============================================================
-    PREPAID VS COD HIGHLIGHT CARDS (Shown only if codCharge > 0)
+    PREPAID VS COD CARDS
 ============================================================ */
 function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
   const codCharge = product.codCharge ?? 0;
@@ -95,12 +107,19 @@ function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
   return (
     <div className="flex flex-col gap-2.5 my-1">
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold uppercase tracking-wider text-[#4A4238]">
+        <span className="text-[13px] font-bold uppercase tracking-wider text-[#4A4238]">
           Select Payment Preference
         </span>
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full border border-[#2E7D32]/20">
-          <Sparkles className="w-3 h-3" /> Save ₹{codCharge} on Prepaid
-        </span>
+        
+        {codCharge > 0 && selectedOption === "prepaid" && (
+          <div key={selectedOption} className="relative inline-block">
+            <ParticleBurst />
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-1 rounded-full border border-[#2E7D32]/30 animate-[pop-burst_0.4s_cubic-bezier(0.175,0.885,0.32,1.275)]">
+              <span className="inline-block animate-[pop-burst_0.5s_ease-out]">🎉</span>
+              <span>Save ₹{codCharge} on Prepaid</span>
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -108,18 +127,19 @@ function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
         <button
           type="button"
           onClick={() => setSelectedOption("prepaid")}
-          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between ${
+          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between overflow-hidden ${
             selectedOption === "prepaid"
-              ? "border-[#A9812F] bg-[#FDFBF7] shadow-sm"
-              : "border-gray-200 bg-white hover:border-gray-300"
+              ? "border-[#A9812F] bg-[#FDFBF7] shadow-md scale-[1.01] animate-[card-pop_0.35s_ease-out]"
+              : "border-gray-200 bg-white hover:border-gray-300 opacity-80"
           }`}
         >
+          {selectedOption === "prepaid" && <ParticleBurst />}
           <div className="flex items-center justify-between mb-1">
             <span className="text-[12px] font-bold text-[#A9812F] uppercase tracking-wide">
               Prepaid (Recommended)
             </span>
-            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              selectedOption === "prepaid" ? "border-[#A9812F] bg-[#A9812F]" : "border-gray-300"
+            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-transform ${
+              selectedOption === "prepaid" ? "border-[#A9812F] bg-[#A9812F] scale-110" : "border-gray-300"
             }`}>
               {selectedOption === "prepaid" && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
             </span>
@@ -135,18 +155,19 @@ function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
         <button
           type="button"
           onClick={() => setSelectedOption("cod")}
-          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between ${
+          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between overflow-hidden ${
             selectedOption === "cod"
-              ? "border-[#A9812F] bg-[#FDFBF7] shadow-sm"
-              : "border-gray-200 bg-white hover:border-gray-300"
+              ? "border-[#A9812F] bg-[#FDFBF7] shadow-md scale-[1.01] animate-[card-pop_0.35s_ease-out]"
+              : "border-gray-200 bg-white hover:border-gray-300 opacity-80"
           }`}
         >
+          {selectedOption === "cod" && <ParticleBurst />}
           <div className="flex items-center justify-between mb-1">
             <span className="text-[12px] font-bold text-gray-600 uppercase tracking-wide">
               Cash On Delivery
             </span>
-            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-              selectedOption === "cod" ? "border-[#A9812F] bg-[#A9812F]" : "border-gray-300"
+            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-transform ${
+              selectedOption === "cod" ? "border-[#A9812F] bg-[#A9812F] scale-110" : "border-gray-300"
             }`}>
               {selectedOption === "cod" && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
             </span>
@@ -262,7 +283,7 @@ export default function ProductDetails() {
 
   return (
     <section className="bg-white">
-      <div className="max-w-[1180px] mx-auto px-[18px] md:px-8 py-6 md:py-10 pb-32 md:pb-10">
+      <div className="max-w-[1180px] mx-auto px-[18px] md:px-8 py-6 md:py-10 pb-28 md:pb-10">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-6 md:mb-8">
           <ol className="flex items-center flex-wrap gap-1.5 text-[12px] text-[#4A4238]/70">
@@ -322,7 +343,7 @@ export default function ProductDetails() {
                   ₹{product.price}
                 </span>
                 <span className="inline-flex items-center gap-1 text-[12px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-1 rounded-full border border-[#2E7D32]/20">
-                  <Sparkles className="w-3.5 h-3.5" /> Free Delivery
+                  🎉 Free Delivery
                 </span>
               </div>
             )}
@@ -335,7 +356,7 @@ export default function ProductDetails() {
               </div>
             )}
 
-            {/* Snake Border Benefits Banner */}
+            {/* Benefits Banner */}
             <ProductBenefits isEligible={isEligibleForReturnExchange} />
 
             {/* Desktop WhatsApp CTA */}
@@ -345,7 +366,7 @@ export default function ProductDetails() {
                   href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-full bg-[#128C7E] text-white text-[15px] font-bold hover:bg-[#0E6F64] transition-all duration-200 shadow-md animate-[whatsapp-pulse_2.6s_ease-in-out_infinite]"
+                  className="relative inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-full bg-[#128C7E] hover:bg-[#0E6F64] active:bg-[#0B5E54] text-white text-[15px] font-bold transition-colors duration-200 shadow-md"
                 >
                   <MessageCircle className="w-5 h-5 text-white fill-white" strokeWidth={2} />
                   Order via WhatsApp (₹{currentPrice})
@@ -444,76 +465,68 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Prominent & High-Trust Mobile Sticky CTA Bar */}
+      {/* FLOATING MOBILE BUTTON */}
       {isAvailable && (
-        <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-[#FAF8F4] border-t border-[#A9812F]/20 px-3.5 pt-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-10px_25px_rgba(27,23,18,0.1)]">
-          
-          
-
-          <div className="flex items-center justify-between gap-3">
-            {/* Price & Savings Badge Info */}
-            <div className="flex flex-col justify-center">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-[20px] font-bold text-[#221D16] tracking-tight">
-                  ₹{currentPrice}
-                </span>
-
-                {/* Dynamic Badge based on COD / Prepaid */}
-                {codCharge > 0 ? (
-                  paymentOption === "prepaid" ? (
-                    <span className="text-[10.5px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full border border-[#2E7D32]/20 shadow-none">
-                      Save ₹{codCharge}
-                    </span>
-                  ) : (
-                    <span className="text-[10.5px] font-semibold text-[#8C6D23] bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#A9812F]/20">
-                      +₹{codCharge} COD Fee
-                    </span>
-                  )
-                ) : (
-                  <span className="text-[10.5px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2 py-0.5 rounded-full border border-[#2E7D32]/20">
-                    Free Delivery
-                  </span>
-                )}
-              </div>
-
-              {/* Subtitle Micro-Trust Text */}
-              <span className="text-[10.5px] text-[#4A4238] font-medium flex items-center gap-1 mt-0.5">
-                {codCharge > 0 ? (
-                  paymentOption === "prepaid" ? (
-                    <span>⚡ Fast Dispatch • Zero Extra Fee</span>
-                  ) : (
-                    <span>📦 Pay Cash on Delivery</span>
-                  )
-                ) : (
-                  <span>✨ All Taxes & Shipping Included</span>
-                )}
-              </span>
-            </div>
-
-            {/* High-Visibility Darker WhatsApp Green Button */}
+        <div className="md:hidden fixed bottom-4 inset-x-0 z-50 px-4 pointer-events-none pb-[env(safe-area-inset-bottom)]">
+          <div className="max-w-md mx-auto pointer-events-auto">
             <a
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 max-w-[195px] inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[#128C7E] hover:bg-[#0E6F64] text-white text-[13.5px] font-bold active:scale-[0.98] transition-all shadow-md animate-[whatsapp-pulse_2.6s_ease-in-out_infinite]"
+              className="w-full inline-flex items-center justify-center gap-2.5 py-4 px-3 rounded-full  bg-[#111111]  hover:bg-[#2A2A2A] text-white text-[15px] font-medium uppercase tracking-wide transition-colors duration-200 shadow-lg"
             >
-              <MessageCircle className="w-4 h-4 text-white fill-white" strokeWidth={2} />
-              Order on WhatsApp
+              <MessageCircle className="w-5 h-5 text-white fill-white" strokeWidth={2} />
+              Order on WhatsApp 
             </a>
           </div>
         </div>
       )}
 
-      {/* Animations CSS */}
+      {/* ANIMATIONS */}
       <style>{`
+        @keyframes pop-burst {
+          0% { transform: scale(0.7) rotate(-4deg); opacity: 0; }
+          60% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+          80% { transform: scale(0.95); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes card-pop {
+          0% { transform: scale(0.96); }
+          50% { transform: scale(1.02); }
+          100% { transform: scale(1.01); }
+        }
+
+        @keyframes spark-1 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(-28px, -24px) scale(0); opacity: 0; }
+        }
+        @keyframes spark-2 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(28px, -28px) scale(0); opacity: 0; }
+        }
+        @keyframes spark-3 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(-32px, 18px) scale(0); opacity: 0; }
+        }
+        @keyframes spark-4 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(30px, 22px) scale(0); opacity: 0; }
+        }
+        @keyframes spark-5 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(0px, -35px) scale(0); opacity: 0; }
+        }
+        @keyframes spark-6 {
+          0% { transform: translate(0, 0) scale(1); opacity: 1; }
+          100% { transform: translate(0px, 30px) scale(0); opacity: 0; }
+        }
+
         @keyframes snake-spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes whatsapp-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(18, 140, 126, 0.45); }
-          50% { box-shadow: 0 0 0 8px rgba(18, 140, 126, 0); }
-        }
+
         @media (prefers-reduced-motion: reduce) {
           [class*="animate-"] { animation: none !important; }
         }

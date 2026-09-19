@@ -49,7 +49,7 @@ function WhatsAppAssistant() {
     }
   }, [charIndex, fullText]);
 
-  const phoneNumber = "919000000000"; 
+  const phoneNumber = "+918891900699"; 
   const defaultMessage = encodeURIComponent("Hello! I need some assistance.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`;
 
@@ -225,7 +225,7 @@ function HeroVideoShowcase() {
       </div>
 
       {/* ORIGINAL SHOP NOW BUTTON */}
-      <div className="flex justify-center w-full mt-2">
+      <div className="flex justify-center w-full ">
         <Link
           to={`/products/${currentVideo.id}`}
           className="inline-flex items-center text-center justify-center px-8 py-3.5 rounded-full bg-[#111111] text-[#FFFFFF] text-[14px] font-medium hover:bg-[#2A2A2A] transition-colors duration-200 shadow-md"
@@ -299,7 +299,7 @@ export default function Hero() {
             <div className={`flex items-center gap-4 flex-wrap ${entranceCls}`} style={delay(90)}>
               <Link
                 to="/products"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#3D281D] text-[#FDFBF7] text-[14px] font-medium hover:bg-[#2A1B13] transition-colors duration-200 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-4"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full  bg-[#111111] text-[#FFFFFF] text-[14px] font-medium hover:bg-[#2A2A2A] transition-colors duration-200 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-4"
               >
                 Explore Products
               </Link>
