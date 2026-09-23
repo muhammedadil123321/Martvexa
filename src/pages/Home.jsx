@@ -10,24 +10,12 @@ import {
   Truck,
   MessageSquare,
   Lock,
+  ArrowRight,
 } from "lucide-react";
 import TrendingProducts from "./TrendingProducts";
-import HowToOrder from "../components/HowToOrder";
 
-// Local video imports
-import video1 from "../assets/vedio/vedio1.mp4";
-import video2 from "../assets/vedio/vedio2.mp4";
-import video3 from "../assets/vedio/vedio3.mp4";
+import { fetchVideos } from "../services/api";
 import Reviews from "./Reviews";
-
-/* ============================================================
-   VIDEO DATA SET (IDs must match product IDs in products.js)
-============================================================ */
-const VIDEO_LIST = [
-  { id: 1, src: video1 },
-  { id: 2, src: video2 },
-  { id: 3, src: video3 },
-];
 
 /* ============================================================
    WHATSAPP ASSISTANT FLOATING BUTTON
@@ -55,7 +43,7 @@ function WhatsAppAssistant() {
 
   return (
     <div className="fixed bottom-5 right-4 sm:right-6 z-50 flex items-center gap-2.5 select-none">
-      {/* Laptop / Desktop Screens-ൽ മാത്രം കാണിക്കുന്ന Animated Text Bubble */}
+      {/* Desktop Animated Text Bubble */}
       <div className="hidden md:flex bg-white/95 backdrop-blur-md border border-[#B57A25]/30 text-[#221C18] text-[13px] font-medium px-3.5 py-2 rounded-2xl shadow-xl items-center gap-1">
         <span>{displayedText}</span>
         {charIndex < fullText.length && (
@@ -88,27 +76,40 @@ function WhatsAppAssistant() {
 ============================================================ */
 function HeroVideoShowcase() {
   const videoRef = useRef(null);
+  const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [touchStartX, setTouchStartX] = useState(0);
 
-  const currentVideo = VIDEO_LIST[currentIndex];
+  useEffect(() => {
+    fetchVideos().then(data => {
+      setVideos(data.length ? data : []);
+    }).catch(err => console.error("Error fetching videos:", err));
+  }, []);
+
+  const currentVideo = videos[currentIndex];
 
   useEffect(() => {
     const el = videoRef.current;
-    if (!el) return;
+    if (!el || !currentVideo) return;
 
     el.muted = isMuted;
     el.play().catch(() => {});
-  }, [currentIndex, isMuted]);
+  }, [currentIndex, isMuted, currentVideo]);
 
   const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % VIDEO_LIST.length);
-  }, []);
+    if (videos.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % videos.length);
+  }, [videos.length]);
 
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + VIDEO_LIST.length) % VIDEO_LIST.length);
-  }, []);
+    if (videos.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + videos.length) % videos.length);
+  }, [videos.length]);
+
+  if (videos.length === 0) {
+    return <div className="w-[350px] h-[550px] flex items-center justify-center text-gray-500 animate-pulse bg-white/20 rounded-2xl">Loading amazing deals...</div>;
+  }
 
   const toggleMute = (e) => {
     e.stopPropagation();
@@ -133,7 +134,7 @@ function HeroVideoShowcase() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex flex-col items-center gap-6">
       <div
         className="relative w-[350px] h-[550px] md:w-[400px] md:h-[500px] transition-all duration-300 select-none"
         onTouchStart={handleTouchStart}
@@ -152,7 +153,7 @@ function HeroVideoShowcase() {
             {/* Video Player */}
             <video
               ref={videoRef}
-              src={currentVideo.src}
+              src={currentVideo.videoUrl}
               autoPlay
               loop={false}
               muted={isMuted}
@@ -172,7 +173,7 @@ function HeroVideoShowcase() {
               type="button"
               onClick={handlePrev}
               aria-label="Previous video"
-              className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 transition-colors z-20"
+              className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 active:scale-90 transition-all z-20"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -182,7 +183,7 @@ function HeroVideoShowcase() {
               type="button"
               onClick={handleNext}
               aria-label="Next video"
-              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 transition-colors z-20"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 active:scale-90 transition-all z-20"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -193,7 +194,7 @@ function HeroVideoShowcase() {
                 type="button"
                 onClick={toggleMute}
                 aria-label={isMuted ? "Unmute sound" : "Mute sound"}
-                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/70 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 transition-colors"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/70 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 active:scale-90 transition-all"
               >
                 {isMuted ? (
                   <VolumeX className="w-4 h-4 text-red-400" />
@@ -205,7 +206,7 @@ function HeroVideoShowcase() {
 
             {/* Pagination Indicators */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
-              {VIDEO_LIST.map((_, index) => (
+              {videos.map((_, index) => (
                 <button
                   key={index}
                   type="button"
@@ -224,14 +225,31 @@ function HeroVideoShowcase() {
         </div>
       </div>
 
-      {/* ORIGINAL SHOP NOW BUTTON */}
-      <div className="flex justify-center w-full ">
-        <Link
-          to={`/products/${currentVideo.id}`}
-          className="inline-flex items-center text-center justify-center px-8 py-3.5 rounded-full bg-[#111111] text-[#FFFFFF] text-[14px] font-medium hover:bg-[#2A2A2A] transition-colors duration-200 shadow-md"
-        >
-          Shop Now
-        </Link>
+      {/* SHOP NOW BUTTON */}
+      <div className="flex flex-col items-center justify-center w-full pt-2">
+        {currentVideo?.linkedProductId ? (
+          <Link
+            to={`/products/${currentVideo.linkedProductId._id || currentVideo.linkedProductId}`}
+            className="group relative inline-flex items-center justify-center gap-3 px-10 py-4 rounded-full bg-black hover:bg-[#1a1a1a] text-white text-[15px] font-extrabold tracking-wider uppercase transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-black shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden"
+          >
+            {/* Shimmer Light Beam Effect */}
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+            <span className="relative z-10 text-white font-bold tracking-widest text-[14px]">
+              Shop Now
+            </span>
+            
+            {/* Animated White Arrow */}
+            <ArrowRight className="w-5 h-5 text-white relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
+          </Link>
+        ) : (
+          <button 
+            disabled
+            className="inline-flex items-center text-center justify-center px-8 py-3.5 rounded-full bg-black text-white text-[14px] font-medium opacity-50 cursor-not-allowed shadow-md"
+          >
+            Coming Soon
+          </button>
+        )}
       </div>
     </div>
   );
@@ -297,27 +315,37 @@ export default function Hero() {
 
             {/* ACTION BUTTONS */}
             <div className={`flex items-center gap-4 flex-wrap ${entranceCls}`} style={delay(90)}>
+              
+              {/* EXPLORE PRODUCTS BUTTON (WITH SAME SHIMMER & GLOW FEATURES AS SHOP NOW) */}
               <Link
                 to="/products"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full  bg-[#111111] text-[#FFFFFF] text-[14px] font-medium hover:bg-[#2A2A2A] transition-colors duration-200 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-4"
+                className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full bg-black hover:bg-[#1a1a1a] text-white text-[14px] font-extrabold tracking-wider uppercase transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-black shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-black"
               >
-                Explore Products
+                {/* Shimmer Light Beam Effect */}
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+                <span className="relative z-10 text-white font-bold tracking-widest text-[14px]">
+                  Explore Products
+                </span>
+                
+                {/* Animated White Arrow */}
+                <ArrowRight className="w-5 h-5 text-white relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
               </Link>
 
+              {/* HOW TO ORDER BUTTON (DESKTOP/LAPTOP ONLY) */}
               <Link
                 to="/how-to-order"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#EFE6D5] text-[#3D281D] text-[14px] font-medium hover:bg-[#E4D7C2] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-2"
+                className="hidden md:inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#EFE6D5] text-[#3D281D] text-[14px] font-medium hover:bg-[#E4D7C2] hover:scale-105 active:scale-95 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-2"
               >
                 How To Order
               </Link>
             </div>
 
-            {/* PREMIUM TRUST HIGHLIGHTS (2x2 Grid) */}
+            {/* TRUST HIGHLIGHTS */}
             <div
               className={`pt-5 border-t border-[#8C7A6B]/20 grid grid-cols-2 gap-x-4 gap-y-4 mt-2 ${entranceCls}`}
               style={delay(110)}
             >
-              {/* Badge 1 */}
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#B57A25]/12 text-[#B57A25] shrink-0 border border-[#B57A25]/20">
                   <Lock className="w-4 h-4" />
@@ -327,7 +355,6 @@ export default function Hero() {
                 </span>
               </div>
 
-              {/* Badge 2 */}
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#B57A25]/12 text-[#B57A25] shrink-0 border border-[#B57A25]/20">
                   <ShieldCheck className="w-4 h-4" />
@@ -337,7 +364,6 @@ export default function Hero() {
                 </span>
               </div>
 
-              {/* Badge 3 */}
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#B57A25]/12 text-[#B57A25] shrink-0 border border-[#B57A25]/20">
                   <Truck className="w-4 h-4" />
@@ -347,7 +373,6 @@ export default function Hero() {
                 </span>
               </div>
 
-              {/* Badge 4 */}
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#B57A25]/12 text-[#B57A25] shrink-0 border border-[#B57A25]/20">
                   <MessageSquare className="w-4 h-4" />
@@ -370,7 +395,6 @@ export default function Hero() {
 
       <TrendingProducts />
       <Reviews />
-      <HowToOrder />
 
       {/* FLOATING WHATSAPP ASSISTANT BUTTON */}
       <WhatsAppAssistant />
