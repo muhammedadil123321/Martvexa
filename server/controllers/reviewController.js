@@ -1,4 +1,4 @@
-const Review = require('../models/Reviews');
+const Review = require('../models/Review');
 
 // Get All Reviews (Optionally filter by product ID using query: ?product=ID)
 exports.getReviews = async (req, res) => {
