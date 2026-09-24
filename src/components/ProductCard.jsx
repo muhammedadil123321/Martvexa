@@ -21,12 +21,14 @@ function WhatsAppIcon({ className }) {
 }
 
 export default function ProductCard({ product }) {
-  const { id, name, price, image, whatsappNumber = "911234567890" } = product;
+  const { _id, id, name, price, image } = product;
+  // MongoDB uses _id; fall back to numeric id for any legacy data
+  const productId = _id || id;
 
   return (
     <Link
-      to={`/products/${id}`}
-      className="group relative flex flex-col overflow-hidden rounded-[20px] border border-[#1B1712]/[0.07] bg-white shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] transition-[transform,box-shadow] duration-500 ease-out motion-reduce:transition-none hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(169,129,47,0.15)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-4"
+      to={`/products/${productId}`}
+      className="group relative flex flex-col overflow-hidden rounded-[15px] transition-[transform,box-shadow] duration-500 ease-out motion-reduce:transition-none hover:-translate-y-1.5  focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-4"
       aria-label={`View ${name}`}
     >
       {/* Image area */}
@@ -49,8 +51,8 @@ export default function ProductCard({ product }) {
           className="relative h-full w-full object-cover transition-transform duration-[550ms] ease-out motion-reduce:transition-none group-hover:scale-105"
         />
 
-   
-        
+
+
         {/* Desktop hover — "View Product" reveal */}
         <div
           className="pointer-events-none absolute inset-0 hidden md:flex items-end justify-center bg-gradient-to-t from-[#1B1712]/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-out motion-reduce:transition-none group-hover:opacity-100"

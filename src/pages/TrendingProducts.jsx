@@ -1,17 +1,25 @@
-import { Link } from "react-router-dom";
-import { products } from "../data/products";
+import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
+import { fetchTrendingProducts } from "../services/api";
 
 /* ============================================================
    TRENDING PRODUCTS SECTION — Warm Premium & Minimalist Theme
 ============================================================ */
 
 export default function TrendingProducts() {
-  const activeProducts = products.filter((product) => product.active);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTrendingProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section
-      className="relative bg-[linear-gradient(160deg,#F3E9D2_0%,#F8F2E4_45%,#FBF9F4_100%)] overflow-hidden py-14 md:py-20"
+      className="relative bg-white overflow-hidden py-14 md:py-20"
       aria-label="Trending products"
     >
       {/* Soft ambient spotlight glow */}
@@ -21,7 +29,7 @@ export default function TrendingProducts() {
       />
 
       <div className="relative max-w-[1280px] mx-auto px-[18px] md:px-8">
-        
+
         {/* SECTION HEADER */}
         <div className="text-center flex flex-col items-center gap-2 mb-10 md:mb-14">
           <span className="text-[11px] font-semibold tracking-[0.14em] text-[#8C7A6B] uppercase">
@@ -33,32 +41,31 @@ export default function TrendingProducts() {
           >
             Trending <span className="text-[#B57A25]">Products</span>
           </h2>
-          <p className="text-[14px] sm:text-[15px] text-[#52463C] max-w-md">
-            Handpicked customer favorites crafted for everyday convenience and style.
-          </p>
+         
         </div>
 
-        {/* MINIMAL & TRUSTWORTHY PRODUCT GRID */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-          {activeProducts.map((product) => (
-            <div
-              key={product.id}
-              className="group relative rounded-2xl bg-white/80 backdrop-blur-md border border-[#B57A25]/15 p-2 sm:p-2.5 shadow-sm hover:shadow-xl hover:shadow-[#3D281D]/8 hover:border-[#B57A25]/40 hover:-translate-y-1 transition-all duration-300 flex flex-col"
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
-        </div>
-
-        {/* VIEW MORE BUTTON */}
-        {/* <div className="flex justify-center w-full mt-10 md:mt-14">
-          <Link
-            to="/products"
-            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#3D281D] text-[#FDFBF7] text-[14px] font-medium hover:bg-[#2A1B13] transition-colors duration-200 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3D281D] focus-visible:outline-offset-2"
-          >
-            View More
-          </Link>
-        </div> */}
+        {/* LOADING STATE */}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-9 h-9 border-4 border-[#B57A25] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-[#4A4238] text-[15px]">No trending products right now.</p>
+          </div>
+        ) : (
+          /* PRODUCT GRID */
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            {products.map((product) => (
+              <div
+                key={product._id}
+                className="group relative rounded-2xl bg-white/80 backdrop-blur-md  border border-[#1B1712]/[0.07] bg-white shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] p-2 sm:p-2.5   hover:border-gray-50 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        )}
 
       </div>
     </section>

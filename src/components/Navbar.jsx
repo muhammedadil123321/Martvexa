@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Truck,
   ShieldCheck,
-  CheckCircle2,
   BadgeCheck,
   MessageCircle,
   Sparkles,
@@ -18,9 +16,7 @@ const NAV_LINKS = [
 ];
 
 const TRUST_ITEMS = [
-  
   { icon: ShieldCheck, label: "Easy & Secure Ordering" },
-
   { icon: BadgeCheck, label: "Premium Quality Assured" },
   { icon: MessageCircle, label: "24/7 WhatsApp Customer Support" },
 ];
@@ -48,7 +44,7 @@ function BrandMark({ className = "w-9 h-9" }) {
 }
 
 /* ============================================================
-   CHAMPAGNE GOLD TRUST STRIP (5 ROTATING ITEMS)
+   CHAMPAGNE GOLD TRUST STRIP
 ============================================================ */
 function TrustStrip() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -74,18 +70,11 @@ function TrustStrip() {
                   : "opacity-0 -translate-y-2 pointer-events-none scale-95"
               }`}
             >
-              {/* Soft Champagne Gold Sparkle */}
               <Sparkles className="w-3.5 h-3.5 text-[#C9A75A]" />
-
-              {/* Icon */}
               <ItemIcon className="w-4 h-4 text-[#D8B768]" strokeWidth={1.75} />
-
-              {/* Text */}
               <span className="text-[12.5px] sm:text-[13px] font-medium tracking-wide text-[#FAF8F4]/90">
                 {item.label}
               </span>
-
-              {/* Soft Champagne Gold Sparkle */}
               <Sparkles className="w-3.5 h-3.5 text-[#C9A75A]" />
             </div>
           );
@@ -98,7 +87,7 @@ function TrustStrip() {
 /* ============================================================
    MOBILE MENU COMPONENT
 ============================================================ */
-function MobileMenu({ open, onClose }) {
+function MobileMenu({ open, onClose, currentPath }) {
   const closeBtnRef = useRef(null);
 
   useEffect(() => {
@@ -151,19 +140,26 @@ function MobileMenu({ open, onClose }) {
       </div>
 
       <div className="flex-1 flex flex-col justify-center px-8 pb-20 overflow-y-auto">
-        {NAV_LINKS.map((link) => (
-          <a
-            key={link.label}
-            href={link.href}
-            onClick={onClose}
-            className="group py-4 first:pt-0 border-b border-[#E7E1D6] text-[32px] font-medium text-[#17130F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:-outline-offset-2"
-            style={{ fontFamily: "'Fraunces', serif" }}
-          >
-            <span className="inline-block transition-transform duration-200 group-active:translate-x-1">
-              {link.label}
-            </span>
-          </a>
-        ))}
+        {NAV_LINKS.map((link) => {
+          const isActive = currentPath === link.href;
+          return (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={onClose}
+              className={`group py-4 first:pt-0 border-b border-[#E7E1D6] text-[32px] transition-colors ${
+                isActive
+                  ? "font-semibold text-[#A9812F]"
+                  : "font-medium text-[#17130F]"
+              }`}
+              style={{ fontFamily: "'Fraunces', serif" }}
+            >
+              <span className="inline-block transition-transform duration-200 group-active:translate-x-1">
+                {link.label}
+              </span>
+            </a>
+          );
+        })}
       </div>
 
       <div className="px-8 pb-7 flex-shrink-0">
@@ -182,8 +178,14 @@ function MobileMenu({ open, onClose }) {
 export default function MartvexaHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currentPath, setCurrentPath] = useState("");
 
   useEffect(() => {
+    // Current Path നിശ്ചയിക്കുന്നു
+    if (typeof window !== "undefined") {
+      setCurrentPath(window.location.pathname);
+    }
+
     function onScroll() {
       setIsScrolled(window.scrollY > 8);
     }
@@ -205,6 +207,7 @@ export default function MartvexaHeader() {
         }`}
       >
         <div className="h-full max-w-[1280px] mx-auto px-[18px] md:px-8 flex items-center justify-between gap-6">
+          {/* Brand Logo & Name */}
           <a
             href="/"
             className="flex items-center gap-3 flex-shrink-0 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-4"
@@ -219,20 +222,30 @@ export default function MartvexaHeader() {
             </span>
           </a>
 
+          {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="relative text-[14.5px] font-medium text-[#3A342C] py-1.5 hover:text-[#17130F] transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-[#A9812F] after:scale-x-0 after:origin-left after:transition-transform after:duration-200 hover:after:scale-x-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-4"
-              >
-                {link.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = currentPath === link.href;
+
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className={`relative text-[14.5px] py-1.5 transition-colors duration-200 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-[#A9812F] after:origin-left after:transition-transform after:duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-4 ${
+                    isActive
+                      ? "font-semibold text-[#17130F] after:scale-x-100"
+                      : "font-medium text-[#3A342C] hover:text-[#17130F] after:scale-x-0 hover:after:scale-x-100"
+                  }`}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </div>
 
           <div className="hidden md:block w-[38px] flex-shrink-0" aria-hidden="true" />
 
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
@@ -245,8 +258,13 @@ export default function MartvexaHeader() {
         </div>
       </nav>
 
+      {/* Mobile Drawer */}
       <div id="martvexa-mobile-menu">
-        <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <MobileMenu
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          currentPath={currentPath}
+        />
       </div>
     </header>
   );

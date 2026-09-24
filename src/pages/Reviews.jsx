@@ -1,51 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Star, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
 
-/* ============================================================
-   REVIEWS DATA
-============================================================ */
-const REVIEWS = [
-  {
-    id: 1,
-    name: "Ananya Ramesh",
-    rating: 5,
-    comment:
-      "Absolutely loved the product quality! The packaging was extremely premium, and support helped me customize my order seamlessly.",
-    itemOrdered: "Customized Premium Gift Box",
-  },
-  {
-    id: 2,
-    name: "Rahul Nair",
-    rating: 5,
-    comment:
-      "Ordering through WhatsApp after browsing the site was so effortless. Great customer service and authentic product finish.",
-    itemOrdered: "Handcrafted Wooden Decor",
-  },
-  {
-    id: 3,
-    name: "Sneha Antony",
-    rating: 5,
-    comment:
-      "The material quality exceeded my expectations. Delivery was fast and the product finish was totally worth it.",
-    itemOrdered: "Linen Apparel Collection",
-  },
-  {
-    id: 4,
-    name: "Arun Kumar",
-    rating: 5,
-    comment:
-      "Bought this as a gift for a wedding. Premium feel, exact details as shown in photos, and elegant design.",
-    itemOrdered: "Luxury Keepsake Set",
-  },
-  {
-    id: 5,
-    name: "Meera Krishnan",
-    rating: 5,
-    comment:
-      "Incredible attention to detail. The customization was exact and the item reached before the estimated date.",
-    itemOrdered: "Personalized Desk Organizer",
-  },
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API = `${API_BASE_URL}/api/reviews`;
 
 /* ============================================================
    LOCAL STYLES — Hide Scrollbar & Hover Animations
@@ -76,6 +33,25 @@ const LocalStyles = () => (
 
 export default function Reviews() {
   const scrollContainerRef = useRef(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        const res = await fetch(API);
+        const data = await res.json();
+        // Show only approved reviews on the user-facing page
+        setReviews(Array.isArray(data) ? data.filter(r => r.isApproved) : []);
+      } catch (err) {
+        console.error('Failed to load reviews:', err);
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchReviews();
+  }, []);
 
   // Desktop screen-ൽ മാത്രം arrow buttons വഴി scroll ചെയ്യാനുള്ള ഫംഗ്ഷനുകൾ
   const scrollLeft = () => {
@@ -139,13 +115,24 @@ export default function Reviews() {
         </div>
 
         {/* ================= HORIZONTAL SCROLL CONTAINER (NO SCROLLBAR) ================= */}
+        {loading && (
+          <div className="flex justify-center items-center py-16 text-[#8C7A6B] text-sm">
+            Loading reviews…
+          </div>
+        )}
+        {!loading && reviews.length === 0 && (
+          <div className="text-center py-16 text-[#8C7A6B] text-sm">
+            No reviews yet. Be the first to share your experience!
+          </div>
+        )}
+        {!loading && reviews.length > 0 && (
         <div
           ref={scrollContainerRef}
           className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-5 py-3 scroll-smooth"
         >
-          {REVIEWS.map((rev) => (
+          {reviews.map((rev) => (
             <div
-              key={rev.id}
+              key={rev._id}
               className="snap-start shrink-0 w-[85%] sm:w-[calc(50%-10px)] lg:w-[calc(33.333%-13.33px)] flex flex-col"
             >
               <div className="review-card h-full bg-white/85 backdrop-blur-md border border-[#B57A25]/20 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
@@ -161,7 +148,7 @@ export default function Reviews() {
                     ))}
                   </div>
 
-                  {/* 2. SMALL DESCRIPTION */}
+                  {/* 2. COMMENT */}
                   <p className="text-[14px] text-[#52463C] leading-relaxed">
                     "{rev.comment}"
                   </p>
@@ -175,18 +162,18 @@ export default function Reviews() {
                   <div className="flex items-center gap-3">
                     {/* Avatar with First Letter */}
                     <div className="w-10 h-10 rounded-full bg-[#B57A25]/12 border border-[#B57A25]/20 flex items-center justify-center text-[#B57A25] font-semibold text-[15px] shrink-0">
-                      {rev.name.charAt(0)}
+                      {rev.userName.charAt(0)}
                     </div>
 
                     {/* Name & Item Ordered */}
                     <div className="overflow-hidden">
                       <h4 className="text-[14px] font-semibold text-[#221C18] truncate">
-                        {rev.name}
+                        {rev.userName}
                       </h4>
                       <p className="text-[12px] text-[#8C7A6B] truncate">
                         Item:{" "}
                         <span className="text-[#B57A25] font-medium">
-                          {rev.itemOrdered}
+                          {rev.productName || 'General'}
                         </span>
                       </p>
                     </div>
@@ -197,6 +184,7 @@ export default function Reviews() {
             </div>
           ))}
         </div>
+        )}
 
       </div>
     </div>

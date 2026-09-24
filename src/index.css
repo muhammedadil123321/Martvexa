@@ -1,11 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -16,7 +18,10 @@
 
   body {
     @apply bg-brand-white text-brand-charcoal font-sans antialiased;
-    font-feature-settings: 'kern' 1, 'liga' 1;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1;
+
   }
 
   ::selection {
@@ -86,9 +91,15 @@
            px-3 py-1 rounded-full
            text-xs font-medium tracking-wide;
   }
-  .badge-dark  { @apply badge bg-brand-black text-brand-white; }
-  .badge-light { @apply badge bg-brand-smoke text-brand-graphite; }
-  .badge-outline { @apply badge border border-brand-iron text-brand-iron; }
+  .badge-dark {
+    @apply badge bg-brand-black text-brand-white;
+  }
+  .badge-light {
+    @apply badge bg-brand-smoke text-brand-graphite;
+  }
+  .badge-outline {
+    @apply badge border border-brand-iron text-brand-iron;
+  }
 
   /* ─── Section headings ───────────────────────────────────── */
   .section-label {
@@ -109,14 +120,24 @@
   }
 
   /* ─── Dividers ───────────────────────────────────────────── */
-  .divider { @apply border-t border-brand-smoke; }
+  .divider {
+    @apply border-t border-brand-smoke;
+  }
 }
 
 @layer utilities {
-  .animate-delay-100 { animation-delay: 0.1s; }
-  .animate-delay-200 { animation-delay: 0.2s; }
-  .animate-delay-300 { animation-delay: 0.3s; }
-  .animate-delay-400 { animation-delay: 0.4s; }
+  .animate-delay-100 {
+    animation-delay: 0.1s;
+  }
+  .animate-delay-200 {
+    animation-delay: 0.2s;
+  }
+  .animate-delay-300 {
+    animation-delay: 0.3s;
+  }
+  .animate-delay-400 {
+    animation-delay: 0.4s;
+  }
 
   .text-gradient {
     background: linear-gradient(135deg, #0a0a0a 0%, #6b6b6b 100%);
