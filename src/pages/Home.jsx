@@ -103,7 +103,6 @@ function MobileVideoCard({ video }) {
     };
   }, []);
 
-  // Direct toggle with proper event propagation & video element sync
   const toggleMute = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -122,7 +121,7 @@ function MobileVideoCard({ video }) {
   return (
     <div
       ref={containerRef}
-      className="snap-center shrink-0 w-[250px] h-[380px] relative rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col justify-between transition-all duration-300"
+      className="snap-center shrink-0 w-[240px] h-[380px] relative rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col justify-between transition-all duration-300"
     >
       <video
         ref={videoRef}
@@ -141,7 +140,7 @@ function MobileVideoCard({ video }) {
         </div>
       </div>
 
-      {/* SOUND TOGGLE BUTTON (Z-30 & BOTTOM POSITION ADJUSTED TO PREVENT OVERLAY BLOCK) */}
+      {/* SOUND TOGGLE BUTTON */}
       <div className="absolute bottom-4 right-3 z-30">
         <button
           type="button"
@@ -177,6 +176,43 @@ function MobileVideoCard({ video }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   VIDEO SHOWCASE SKELETON LOADER
+============================================================ */
+function HeroVideoSkeleton({ isMobile }) {
+  if (isMobile) {
+    return (
+      <div className="w-full overflow-x-auto flex gap-4 rounded-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {[1, 2, 3].map((item) => (
+          <div
+            key={item}
+            className="shrink-0 w-[250px] h-[380px] relative rounded-2xl bg-slate-200 border border-slate-300/60 p-3 flex flex-col justify-between animate-pulse shadow-md"
+          >
+            <div className="w-24 h-6 rounded-full bg-slate-300" />
+            <div className="self-center w-12 h-12 rounded-full bg-slate-300/80 flex items-center justify-center my-auto" />
+            <div className="w-32 h-10 rounded-full bg-slate-300 self-center mb-1" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative w-[360px] h-[550px] md:w-[400px] md:h-[500px] rounded-sm bg-slate-200 border border-slate-300 p-3 shadow-xl animate-pulse flex flex-col justify-between">
+        <div className="w-28 h-7 rounded-full bg-slate-300" />
+        <div className="self-center w-16 h-16 rounded-full bg-slate-300/80 my-auto" />
+        <div className="flex justify-center gap-2 mb-2">
+          <div className="w-6 h-2 rounded-full bg-slate-300" />
+          <div className="w-2 h-2 rounded-full bg-slate-300" />
+          <div className="w-2 h-2 rounded-full bg-slate-300" />
+        </div>
+      </div>
+      <div className="w-40 h-12 rounded-full bg-slate-300 animate-pulse mt-1" />
     </div>
   );
 }
@@ -237,7 +273,6 @@ function HeroVideoShowcase() {
     el.play().catch(() => {});
   }, [currentIndex, currentVideo, isMobile]);
 
-  // Desktop Sound Toggle Fix
   const toggleDesktopMute = (e) => {
     e?.stopPropagation();
     e?.preventDefault();
@@ -252,11 +287,7 @@ function HeroVideoShowcase() {
   };
 
   if (videos.length === 0) {
-    return (
-      <div className="w-[350px] h-[550px] flex items-center justify-center text-gray-500 animate-pulse bg-white rounded-2xl">
-        Loading amazing deals...
-      </div>
-    );
+    return <HeroVideoSkeleton isMobile={isMobile} />;
   }
 
   const handleTouchStart = (e) => {

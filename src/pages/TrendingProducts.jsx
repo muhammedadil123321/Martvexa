@@ -11,10 +11,22 @@ export default function TrendingProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     fetchTrendingProducts()
-      .then(setProducts)
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (isMounted) setProducts(data || []);
+      })
+      .catch(() => {
+        if (isMounted) setProducts([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -41,15 +53,24 @@ export default function TrendingProducts() {
           >
             Trending <span className="text-[#B57A25]">Products</span>
           </h2>
-         
         </div>
 
-        {/* LOADING STATE */}
+        {/* LOADING STATE - Skeleton Cards (E-commerce Best Practice) */}
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div className="w-9 h-9 border-4 border-[#B57A25] border-t-transparent rounded-full animate-spin" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            {[...Array(4)].map((_, index) => (
+              <div
+                key={index}
+                className="rounded-2xl bg-gray-50 border border-gray-100 p-2 sm:p-2.5 animate-pulse flex flex-col gap-3"
+              >
+                <div className="w-full h-48 sm:h-60 bg-gray-200 rounded-xl" />
+                <div className="h-4 bg-gray-200 rounded-md w-3/4 mt-1" />
+                <div className="h-4 bg-gray-200 rounded-md w-1/2" />
+              </div>
+            ))}
           </div>
         ) : products.length === 0 ? (
+          /* EMPTY STATE */
           <div className="text-center py-16">
             <p className="text-[#4A4238] text-[15px]">No trending products right now.</p>
           </div>
@@ -58,8 +79,8 @@ export default function TrendingProducts() {
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {products.map((product) => (
               <div
-                key={product._id}
-                className="group relative rounded-2xl bg-white/80 backdrop-blur-md  border border-[#1B1712]/[0.07] bg-white shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] p-2 sm:p-2.5   hover:border-gray-50 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                key={product._id || product.id}
+                className="group relative rounded-2xl bg-white/80 backdrop-blur-md border border-[#1B1712]/[0.07] shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] p-2 sm:p-2.5 hover:border-[#B57A25]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <ProductCard product={product} />
               </div>

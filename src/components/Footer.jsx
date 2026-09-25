@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Mail, Phone, ArrowUpRight } from 'lucide-react';
 
-// ⚠️ നിങ്ങളുടെ BrandMark component എവിടെയാണോ ഉള്ളത് അവിടുത്തെ കറക്റ്റ് പാത്ത് നൽകുക
 function BrandMark({ className = "w-9 h-9" }) {
   return (
     <svg viewBox="0 0 40 40" fill="none" className={className}>
@@ -48,6 +47,12 @@ const LocalStyles = () => (
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const PHONE_NUMBER = "918891900699";
+
+  // Pre-filled WhatsApp മെസ്സേജുകൾ
+  const returnMsg = encodeURIComponent("Hi Martvexa, I have a query regarding Return & Exchange for my order.");
+  const assistanceMsg = encodeURIComponent("Hi Martvexa, I need assistance regarding an order.");
+
   const footerLinks = {
     Shop: [
       { label: 'All Products', to: '/products' },
@@ -56,8 +61,16 @@ export default function Footer() {
     ],
     Help: [
       { label: 'How to Order', to: '/howorder' },
-      { label: 'Return & Exchange', to: '/howorder' },
-      { label: 'Order Assistance', to: '/contact' },
+      { 
+        label: 'Return & Exchange', 
+        href: `https://wa.me/${PHONE_NUMBER}?text=${returnMsg}`, 
+        isExternal: true 
+      },
+      { 
+        label: 'Order Assistance', 
+        href: `https://wa.me/${PHONE_NUMBER}?text=${assistanceMsg}`, 
+        isExternal: true 
+      },
     ],
     Company: [
       { label: 'Contact Us', to: '/contact' },
@@ -94,7 +107,7 @@ export default function Footer() {
             {/* Contact Details */}
             <div className="flex flex-col gap-2 mt-1">
               <a
-                href="https://wa.me/918891900699"
+                href={`https://wa.me/${PHONE_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ft-secondary flex items-center gap-2 hover:text-[#25D366] transition-colors font-medium"
@@ -115,7 +128,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mt-1">
               {/* Instagram */}
               <a
-                href="https://instagram.com"
+                href="https://instagram.com/martvexa.in/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -141,7 +154,7 @@ export default function Footer() {
 
               {/* WhatsApp */}
               <a
-                href="https://wa.me/918891900699"
+                href={`https://wa.me/${PHONE_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -152,7 +165,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* ── Link Columns (Mobile: 2 cols top, 1 col bottom; Desktop: 3 cols) ── */}
+          {/* ── Link Columns ─────────────────────────────────────────── */}
           <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6">
             {Object.entries(footerLinks).map(([heading, links]) => (
               <div key={heading}>
@@ -162,13 +175,25 @@ export default function Footer() {
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.label}>
-                      <Link
-                        to={link.to}
-                        className="ft-secondary hover:text-white transition-colors duration-150 inline-flex items-center gap-1 group font-normal"
-                      >
-                        {link.label}
-                        <ArrowUpRight size={13} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-opacity duration-150" />
-                      </Link>
+                      {link.isExternal ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ft-secondary hover:text-white transition-colors duration-150 inline-flex items-center gap-1 group font-normal"
+                        >
+                          {link.label}
+                          <ArrowUpRight size={13} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-opacity duration-150" />
+                        </a>
+                      ) : (
+                        <Link
+                          to={link.to}
+                          className="ft-secondary hover:text-white transition-colors duration-150 inline-flex items-center gap-1 group font-normal"
+                        >
+                          {link.label}
+                          <ArrowUpRight size={13} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-opacity duration-150" />
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
