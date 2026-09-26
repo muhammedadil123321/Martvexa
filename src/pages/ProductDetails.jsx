@@ -240,7 +240,7 @@ function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
           {selectedOption === "cod" && <ParticleBurst />}
 
           <div className="flex items-center justify-between mb-1.5">
-           <span className="text-[14px] font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+           <span className="text-[14px] font-bold text-black uppercase tracking-wide flex items-center gap-2">
               <span className="p-1.5 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
                 <Banknote className="w-4 h-4 text-black" />
               </span>
@@ -249,7 +249,7 @@ function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
           </div>
 
           <div className="flex items-baseline gap-2 my-0.5">
-            <span className="text-[24px] sm:text-[26px] font-extrabold text-[#1B1712] tracking-tight">
+            <span className="text-[24px] sm:text-[26px] font-extrabold text-black tracking-tight">
               ₹{codPrice}
             </span>
             {codCharge > 0 && (
