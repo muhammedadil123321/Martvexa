@@ -10,46 +10,49 @@ import {
   Lock,
   ArrowRight,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import TrendingProducts from "./TrendingProducts";
 import { fetchVideos } from "../services/api";
 import Reviews from "./Reviews";
 
 /* ============================================================
+   CONSTANTS
+============================================================ */
+const WA_PHONE_NUMBER = "+918891900699";
+const WA_FULL_TEXT = "Hello! Do you need any assistance?";
+const WA_DEFAULT_MESSAGE = encodeURIComponent("Hello! I need some assistance.");
+const WA_URL = `https://wa.me/${WA_PHONE_NUMBER}?text=${WA_DEFAULT_MESSAGE}`;
+
+/* ============================================================
    WHATSAPP ASSISTANT FLOATING BUTTON
 ============================================================ */
 function WhatsAppAssistant() {
-  const fullText = "Hello! Do you need any assistance?";
   const [displayedText, setDisplayedText] = useState("");
   const [charIndex, setCharIndex] = useState(0);
 
   useEffect(() => {
-    if (charIndex < fullText.length) {
+    if (charIndex < WA_FULL_TEXT.length) {
       const timer = setTimeout(() => {
-        setDisplayedText((prev) => prev + fullText[charIndex]);
+        setDisplayedText((prev) => prev + WA_FULL_TEXT[charIndex]);
         setCharIndex((prev) => prev + 1);
       }, 65);
 
       return () => clearTimeout(timer);
     }
-  }, [charIndex, fullText]);
-
-  const phoneNumber = "+918891900699";
-  const defaultMessage = encodeURIComponent("Hello! I need some assistance.");
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`;
+  }, [charIndex]);
 
   return (
     <div className="fixed bottom-5 right-4 sm:right-6 z-50 flex items-center gap-2.5 select-none">
       <div className="hidden md:flex bg-white/95 backdrop-blur-md border border-[#B57A25]/30 text-[#221C18] text-[14px] font-semibold px-4 py-2 rounded-2xl shadow-xl items-center gap-1.5">
         <span>{displayedText}</span>
-        {charIndex < fullText.length && (
+        {charIndex < WA_FULL_TEXT.length && (
           <span className="inline-block w-1 h-3.5 bg-[#B57A25] animate-pulse" />
         )}
       </div>
 
       <a
-        href={whatsappUrl}
+        href={WA_URL}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contact WhatsApp Assistant"
@@ -76,12 +79,13 @@ function MobileVideoCard({ video }) {
   const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (videoRef.current) {
-            videoRef.current.play().catch(() => {});
-          }
+          videoRef.current?.play().catch(() => {});
         } else {
           if (videoRef.current) {
             videoRef.current.pause();
@@ -92,14 +96,10 @@ function MobileVideoCard({ video }) {
       { threshold: 0.65 }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    observer.observe(node);
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
-      }
+      observer.unobserve(node);
     };
   }, []);
 
@@ -116,7 +116,7 @@ function MobileVideoCard({ video }) {
     }
   };
 
-  const productId = video.linkedProductId?._id || video.linkedProductId;
+  const productId = video?.linkedProductId?._id || video?.linkedProductId;
 
   return (
     <div
@@ -125,9 +125,9 @@ function MobileVideoCard({ video }) {
     >
       <video
         ref={videoRef}
-        src={video.videoUrl}
+        src={video?.videoUrl}
         playsInline
-        loop={true}
+        loop
         muted={isMuted}
         className="absolute inset-0 w-full h-full object-cover"
       />
@@ -164,7 +164,9 @@ function MobileVideoCard({ video }) {
             className="group relative inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-black/30 hover:bg-black/70 text-white font-bold text-xs border border-white/20 hover:border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-            <span className="relative z-10 text-white font-bold tracking-wide">Shop Now</span>
+            <span className="relative z-10 text-white font-bold tracking-wide">
+              Shop Now
+            </span>
             <ArrowRight className="w-3.5 h-3.5 text-white relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         ) : (
@@ -244,7 +246,7 @@ function HeroVideoShowcase() {
   useEffect(() => {
     fetchVideos()
       .then((data) => {
-        setVideos(data.length ? data : []);
+        setVideos(data?.length ? data : []);
       })
       .catch((err) => console.error("Error fetching videos:", err));
   }, []);
@@ -271,7 +273,7 @@ function HeroVideoShowcase() {
 
     el.muted = isDesktopMuted;
     el.play().catch(() => {});
-  }, [currentIndex, currentVideo, isMobile]);
+  }, [currentIndex, currentVideo, isMobile, isDesktopMuted]);
 
   const toggleDesktopMute = (e) => {
     e?.stopPropagation();
@@ -339,7 +341,7 @@ function HeroVideoShowcase() {
                   ref={desktopVideoRef}
                   src={currentVideo?.videoUrl}
                   autoPlay
-                  loop={true}
+                  loop
                   muted={isDesktopMuted}
                   playsInline
                   className="w-full h-full object-cover"
@@ -421,7 +423,7 @@ function HeroVideoShowcase() {
             ) : (
               <button
                 disabled
-                className="inline-flex items-center text-center justify-center px-7 py-2.5 sm:px-8 sm:py-3 rounded-full bg-black/60 text-white text-[15px] sm:text-[16px] font-semibold opacity-50 cursor-not-allowed shadow-md"
+                className="inline-flex items-center text-center justify-center px-7 py-2.5 sm:px-8 sm:py-3 rounded-full bg-[#221C18]/60 text-white text-[15px] sm:text-[16px] font-semibold opacity-50 cursor-not-allowed shadow-md"
               >
                 Coming Soon
               </button>

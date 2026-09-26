@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   Award,
-  BadgePercent,
   Ban,
   Banknote,
   Check,
@@ -15,8 +14,6 @@ import {
   Minus,
   Plus,
   RotateCcw,
-  ShieldCheck,
-  Sparkles,
   Truck,
   Zap,
 } from "lucide-react";
@@ -457,7 +454,7 @@ export default function ProductDetails() {
         </nav>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6  lg:gap-16 items-start">
           {/* LEFT: Media */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <ProductMedia
@@ -468,7 +465,7 @@ export default function ProductDetails() {
           </div>
 
           {/* RIGHT: Product Info */}
-          <div className="flex flex-col gap-4 lg:pt-1">
+          <div className="flex flex-col gap-4  lg:pt-1">
             <h1 className="text-[24px] sm:text-[27px] md:text-[29px] font-bold text-[#1B1712] leading-[1.25] tracking-tight font-sans">
               {product.name}
             </h1>

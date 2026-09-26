@@ -15,9 +15,13 @@ export default function TrendingProducts() {
 
     fetchTrendingProducts()
       .then((data) => {
-        if (isMounted) setProducts(data || []);
+        if (isMounted) {
+          // Safe Array check - to prevent crash if response is non-array
+          setProducts(Array.isArray(data) ? data : []);
+        }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Failed to fetch trending products:", err);
         if (isMounted) setProducts([]);
       })
       .finally(() => {
@@ -55,7 +59,7 @@ export default function TrendingProducts() {
           </h2>
         </div>
 
-        {/* LOADING STATE - Skeleton Cards (E-commerce Best Practice) */}
+        {/* LOADING STATE - Skeleton Cards */}
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {[...Array(4)].map((_, index) => (
@@ -77,10 +81,10 @@ export default function TrendingProducts() {
         ) : (
           /* PRODUCT GRID */
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            {products.map((product) => (
+            {products.map((product, index) => (
               <div
-                key={product._id || product.id}
-                className="group relative rounded-2xl bg-white/80 backdrop-blur-md border border-[#1B1712]/[0.07] shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] p-2 sm:p-2.5 hover:border-[#B57A25]/30 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                key={product._id || product.id || index}
+                className="group relative rounded-2xl bg-white/80 backdrop-blur-md border border-[#1B1712]/[0.07] shadow-[0_10px_24px_-18px_rgba(34,29,22,0.28)] p-2 sm:p-2.5 hover:border-gray-100 hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <ProductCard product={product} />
               </div>
