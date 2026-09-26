@@ -37,7 +37,7 @@ export default function ProductMedia({ images = [], videoUrl = "", name = "" }) 
 
   if (mediaList.length === 0) {
     return (
-      <div className="w-full aspect-square bg-[#FBF8F0] rounded-2xl flex items-center justify-center text-gray-400 font-sans">
+      <div className="w-full aspect-square bg-[#FBF8F0] rounded-xl flex items-center justify-center text-gray-400 font-sans">
         No Image Available
       </div>
     );
@@ -52,7 +52,8 @@ export default function ProductMedia({ images = [], videoUrl = "", name = "" }) 
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth touch-pan-y overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          /* touch-pan-x touch-pan-y ചേർത്തതോടെ ഫോണിൽ Horizontal Swipe ശരിയായി പ്രവർത്തിക്കും */
+          className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth touch-pan-x touch-pan-y overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {mediaList.map((media, idx) => {
             const isVid = typeof media === "object" && media?.type === "video";
