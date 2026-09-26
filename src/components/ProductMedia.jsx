@@ -1,153 +1,174 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 
-/* ============================================================
-   PRODUCT MEDIA COMPONENT
-   Accepts:
-     images   — string[]  (product image URLs from DB)
-     videoUrl — string    (product videoUrl from DB, empty = no video tab)
-     name     — string
-============================================================ */
-
-export default function ProductMedia({ images = [], videoUrl = "", name }) {
-  // Build a unified media array: images first, then video if URL exists
-  const mediaItems = [
-    ...images.map((src) => ({ type: "image", src })),
-    ...(videoUrl ? [{ type: "video", src: videoUrl, poster: undefined }] : []),
-  ];
-
-  const gallery = mediaItems.length ? mediaItems : [{ type: "image", src: null }];
-  
+export default function ProductMedia({ images = [], videoUrl = "", name = "" }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const videoRef = useRef(null);
+  const [touchOffset, setTouchOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mq.matches);
-    const handler = (e) => setPrefersReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const touchStartX = useRef(0);
 
-  const hasMultiple = gallery.length > 1;
-
-  function showPrev() {
-    setActiveIndex((i) => (i - 1 + gallery.length) % gallery.length);
+  // Filter media items
+  const mediaList = [...images.filter(Boolean)];
+  if (videoUrl) {
+    mediaList.push({ type: "video", url: videoUrl });
   }
 
-  function showNext() {
-    setActiveIndex((i) => (i + 1) % gallery.length);
+  if (mediaList.length === 0) {
+    return (
+      <div className="w-full aspect-square bg-[#FBF8F0] rounded-2xl flex items-center justify-center text-gray-400 font-sans">
+        No Image Available
+      </div>
+    );
   }
 
-  const transitionCls = prefersReducedMotion
-    ? ""
-    : "transition-opacity duration-[350ms] ease-out";
+  /* ============================================================
+     TOUCH SWIPE LOGIC (Real-time Finger Dragging)
+  ============================================================ */
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    setIsDragging(true);
+  };
 
-  const currentMedia = gallery[activeIndex];
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    const currentX = e.targetTouches[0].clientX;
+    const diff = currentX - touchStartX.current;
+    setTouchOffset(diff); // വിരൽ നീങ്ങുന്നതനുസരിച്ച് image നീങ്ങും
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    const minSwipeDistance = 50; // Swipe threshold (in pixels)
+
+    if (touchOffset < -minSwipeDistance) {
+      // Left Swipe -> Next Image
+      setActiveIndex((prev) => (prev < mediaList.length - 1 ? prev + 1 : prev));
+    } else if (touchOffset > minSwipeDistance) {
+      // Right Swipe -> Previous Image
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    }
+
+    setTouchOffset(0); // Position reset
+  };
 
   return (
-    <div className="flex flex-col md:flex-row-reverse gap-3 md:gap-4">
-      {/* Main Display Area */}
-      <div className="relative flex-1">
-        <div className="relative w-full h-[350px] md:h-[450px] lg:h-[550px] rounded-[20px] overflow-hidden bg-[#F6F1E4] border border-[#1B1712]/[0.06] flex items-center justify-center">
-          
-          {/* Render Video */}
-          {currentMedia?.type === "video" ? (
-            <video
-              key={currentMedia.src}
-              ref={videoRef}
-              src={currentMedia.src}
-              poster={currentMedia.poster}
-              controls
-              playsInline
-              preload="metadata"
-              className="h-full w-full object-contain bg-black/90 rounded-[20px]"
-            >
-              Your browser does not support the video tag.
-            </video>
-          ) : currentMedia?.src ? (
-            /* Render Image */
-            <img
-              key={currentMedia.src}
-              src={currentMedia.src}
-              alt={name}
-              className={`h-full w-full object-cover ${transitionCls}`}
-              draggable={false}
-            />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center">
-              <span className="text-[12px] text-[#4A4238]/50">Product media unavailable</span>
-            </div>
-          )}
-
-          {/* Navigation Overlay Buttons */}
-          {hasMultiple && (
-            <>
-              <button
-                type="button"
-                onClick={showPrev}
-                aria-label="Previous media"
-                className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/80 hover:bg-white text-[#221D16] shadow-md transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] z-10"
-              >
-                <ChevronLeft className="w-5 h-5" strokeWidth={2} />
-              </button>
-
-              <button
-                type="button"
-                onClick={showNext}
-                aria-label="Next media"
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white/80 hover:bg-white text-[#221D16] shadow-md transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] z-10"
-              >
-                <ChevronRight className="w-5 h-5" strokeWidth={2} />
-              </button>
-            </>
-          )}
+    <div className="flex flex-col gap-3 font-sans select-none">
+      {/* Main Image Viewport */}
+      <div
+        className="relative w-full aspect-square rounded-2xl bg-[#FBF8F0] overflow-hidden border border-gray-200/80 shadow-sm touch-pan-y"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Sliding Track */}
+        <div
+          className={`w-full h-full flex ${
+            isDragging ? "" : "transition-transform duration-300 ease-out"
+          }`}
+          style={{
+            transform: `translateX(calc(-${activeIndex * 100}% + ${touchOffset}px))`,
+          }}
+        >
+          {mediaList.map((media, idx) => {
+            const isVid = typeof media === "object" && media?.type === "video";
+            return (
+              <div key={idx} className="w-full h-full flex-shrink-0">
+                {isVid ? (
+                  <iframe
+                    src={media.url}
+                    title={`${name} Video`}
+                    className="w-full h-full object-cover pointer-events-auto"
+                    allowFullScreen
+                  />
+                ) : (
+                  <img
+                    src={typeof media === "string" ? media : media?.url}
+                    alt={`${name} - View ${idx + 1}`}
+                    className="w-full h-full object-cover object-center pointer-events-none"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
+
+        {/* Desktop Only Next / Prev Buttons */}
+        {mediaList.length > 1 && (
+          <div className="hidden md:flex items-center justify-between absolute inset-x-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <button
+              type="button"
+              onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : mediaList.length - 1))}
+              className="p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-md backdrop-blur-sm pointer-events-auto transition-all"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveIndex((prev) => (prev < mediaList.length - 1 ? prev + 1 : 0))}
+              className="p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 shadow-md backdrop-blur-sm pointer-events-auto transition-all"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
+        {/* WHITE & GOLD INDICATORS (Mobile & Touch View) */}
+        {mediaList.length > 1 && (
+          <div className="absolute bottom-3 inset-x-0 flex items-center justify-center z-10 pointer-events-none">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/20 shadow-lg pointer-events-auto">
+              {mediaList.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveIndex(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    activeIndex === idx
+                      ? "w-7 bg-gradient-to-r from-[#FFE082] via-[#A9812F] to-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.9)] border border-white/60"
+                      : "w-2.5 bg-white/80 hover:bg-white border border-white/40 opacity-70"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Thumbnails */}
-      {hasMultiple && (
-        <div
-          className="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-x-visible md:overflow-y-auto md:max-h-[560px] pb-1 md:pb-0 -mx-[18px] px-[18px] md:mx-0 md:px-0"
-          role="tablist"
-          aria-label={`${name} media thumbnails`}
-        >
-          {gallery.map((item, i) => (
-            <button
-              key={(item.src || i) + i}
-              type="button"
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`Show ${item.type === "video" ? "video" : "image"} ${i + 1} of ${gallery.length}`}
-              onClick={() => setActiveIndex(i)}
-              className={`relative flex-shrink-0 w-[64px] h-[64px] md:w-[72px] md:h-[72px] rounded-[12px] overflow-hidden bg-[#F6F1E4] border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#A9812F] focus-visible:outline-offset-2 ${
-                i === activeIndex ? "border-[#A9812F] ring-2 ring-[#A9812F]/20" : "border-[#1B1712]/[0.08]"
-              }`}
-            >
-              {item.type === "video" ? (
-                /* Video Thumbnail Representation */
-                <div className="relative h-full w-full bg-[#1B1712]/90 flex items-center justify-center">
-                  {item.poster ? (
-                    <img src={item.poster} alt="Video preview" className="h-full w-full object-cover opacity-60" />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1B1712] to-[#4A4238]" />
-                  )}
-                  {/* Play Icon Overlay */}
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <span className="p-1.5 rounded-full bg-[#A9812F] text-white shadow-sm">
-                      <Play className="w-3.5 h-3.5 fill-white ml-0.5" strokeWidth={2} />
-                    </span>
-                  </span>
-                </div>
-              ) : item.src ? (
-                /* Image Thumbnail */
-                <img src={item.src} alt="" aria-hidden="true" className="h-full w-full object-cover" draggable={false} />
-              ) : (
-                <div className="h-full w-full bg-gray-200" />
-              )}
-            </button>
-          ))}
+      {/* Thumbnails Bar */}
+      {mediaList.length > 1 && (
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
+          {mediaList.map((media, idx) => {
+            const isVid = typeof media === "object" && media?.type === "video";
+            const isSelected = activeIndex === idx;
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setActiveIndex(idx)}
+                className={`relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
+                  isSelected
+                    ? "border-[#A9812F] shadow-md scale-105"
+                    : "border-transparent opacity-70 hover:opacity-100"
+                }`}
+              >
+                {isVid ? (
+                  <div className="w-full h-full bg-black/80 flex items-center justify-center text-white">
+                    <Play className="w-5 h-5 fill-white" />
+                  </div>
+                ) : (
+                  <img
+                    src={typeof media === "string" ? media : media?.url}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

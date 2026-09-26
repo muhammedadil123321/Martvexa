@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  Check,
-  MessageCircle,
-  Headphones,
-  Banknote,
-  RotateCcw,
-  Ban,
-  Plus,
-  Minus,
-  Truck,
   Award,
-  Lock,
+  BadgePercent,
+  Ban,
+  Banknote,
+  Check,
+  CreditCard,
+  HandCoins,
+  Headphones,
   Loader2,
+  Lock,
+  MessageCircle,
+  Minus,
+  Plus,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  Zap,
 } from "lucide-react";
 import ProductMedia from "../components/ProductMedia";
 import { fetchProductById, fetchSettings } from "../services/api";
@@ -77,35 +83,59 @@ function ParticleBurst() {
 /* ============================================================
     PRODUCT BENEFITS BANNER
 ============================================================ */
+/* ============================================================
+    PREMIUM ANIMATED PRODUCT BENEFITS BANNER
+============================================================ */
 function ProductBenefits({ isEligible }) {
   const items = [
-    { icon: Headphones, label: "24/7 Support" },
-    { icon: Banknote, label: "COD Available" },
+    { 
+      icon: Headphones, 
+      title: "24/7 Support", 
+      subtext: "Instant Help" 
+    },
+    { 
+      icon: Banknote, 
+      title: "COD Available", 
+      subtext: "Pay at Doorstep" 
+    },
     isEligible
-      ? { icon: RotateCcw, label: "7 Days Exchange" }
-      : { icon: Ban, label: "Non-Returnable" },
+      ? { icon: RotateCcw, title: "7 Days Exchange", subtext: "Hassle Free" }
+      : { icon: Ban, title: "Non-Returnable", subtext: "Final Sale" },
   ];
 
   return (
-    <div className="relative p-[1.5px] rounded-[18px] overflow-hidden my-1 shadow-[0_10px_25px_-15px_rgba(169,129,47,0.25)] font-sans">
+    <div className="relative p-[2px] rounded-[18px] overflow-hidden my-2 shadow-[0_8px_25px_-10px_rgba(169,129,47,0.35)] font-sans">
+      {/* Retained & Enhanced Rotating Snake Gold Border Animation */}
       <div
         aria-hidden="true"
-        className="absolute inset-[-200%] animate-[snake-spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_300deg,#A9812F_340deg,#E6CA65_360deg)] opacity-90"
+        className="absolute inset-[-200%] animate-[snake-spin_2.5s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_260deg,#A9812F_310deg,#E6CA65_340deg,#FFFFFF_360deg)] opacity-100"
       />
 
+      {/* Inner Container */}
       <div
         role="group"
         aria-label="Order benefits"
-        className="relative z-10 grid grid-cols-3 divide-x divide-[#1B1712]/[0.08] rounded-[16.5px] bg-[#FBF8F0] py-1"
+        className="relative z-10 grid grid-cols-3 divide-x divide-[#A9812F]/15 rounded-[16px] bg-gradient-to-b from-[#FFFDF9] to-[#FBF6EA] py-1.5"
       >
-        {items.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-3.5 sm:px-4 justify-center sm:justify-start">
-            <span className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#A9812F]/12">
-              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[#A9812F]" strokeWidth={1.8} aria-hidden="true" />
+        {items.map(({ icon: Icon, title, subtext }) => (
+          <div
+            key={title}
+            className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-2 justify-center sm:justify-start transition-transform duration-200 hover:scale-[1.02]"
+          >
+            {/* Glowing Icon Container */}
+            <span className="flex h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#A9812F]/20 to-[#A9812F]/5 border border-[#A9812F]/25 shadow-sm text-[#A9812F]">
+              <Icon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2} aria-hidden="true" />
             </span>
-            <span className="text-[11px] sm:text-[13px] font-semibold text-[#221D16] leading-[1.25] tracking-tight">
-              {label}
-            </span>
+
+            {/* Label & Subtext */}
+            <div className="flex flex-col text-center sm:text-left min-w-0">
+              <span className="text-[12px] sm:text-[13px] font-bold mt-2 text-[#1B1712] leading-tight tracking-tight">
+                {title}
+              </span>
+              <span className="hidden sm:block text-[10px] font-medium text-[#4A4238]/70 leading-tight mt-0.5">
+                {subtext}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -116,84 +146,134 @@ function ProductBenefits({ isEligible }) {
 /* ============================================================
     PREPAID VS COD CARDS
 ============================================================ */
+/* ============================================================
+    PREMIUM PAYMENT & PRICING CARDS
+============================================================ */
 function PaymentPricingCards({ product, selectedOption, setSelectedOption }) {
   const codCharge = Number(product?.codCharge) || 0;
   const prepaidPrice = Number(product?.price) || 0;
   const codPrice = prepaidPrice + codCharge;
 
   return (
-    <div className="flex flex-col gap-2.5 my-1 font-sans">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] sm:text-[13px] font-bold uppercase tracking-wider text-[#4A4238] whitespace-nowrap">
+    <div className="flex flex-col gap-3 my-2 font-sans">
+      {/* Header with Security Trust Marker */}
+      <div className="flex items-center justify-between gap-2 px-0.5">
+        <span className="flex items-center gap-1.5 text-[12px] uppercase sm:text-[12px] font-bold  tracking-wider text-[#4A4238]">
+          <Lock className="w-3.5 h-3.5 text-[#A9812F]" />
           Select Payment Preference
         </span>
 
         {codCharge > 0 && selectedOption === "prepaid" && (
           <div key={selectedOption} className="relative inline-flex items-center shrink-0">
             <ParticleBurst />
-            <span className="inline-flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-1 rounded-full border border-[#2E7D32]/30 whitespace-nowrap animate-[pop-burst_0.4s_cubic-bezier(0.175,0.885,0.32,1.275)]">
-              <span className="inline-block animate-[pop-burst_0.5s_ease-out] text-[12px] leading-none">🎉</span>
-              <span className="leading-none">Save ₹{codCharge} on Prepaid</span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2E7D32] bg-[#E8F5E9] px-2.5 py-0.5 rounded-full border border-[#2E7D32]/30 shadow-sm animate-[pop-burst_0.4s_cubic-bezier(0.175,0.885,0.32,1.275)]">
+              <span>🎉</span> Instant ₹{codCharge} OFF
             </span>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Prepaid Option Card */}
+      <div className="grid grid-cols-1 gap-3">
+        {/* PREPAID OPTION CARD */}
         <button
           type="button"
           onClick={() => setSelectedOption("prepaid")}
-          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between overflow-hidden ${
+          className={`relative text-left p-4 rounded-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer ${
             selectedOption === "prepaid"
-              ? "border-[#A9812F] bg-[#FDFBF7] shadow-md scale-[1.01] animate-[card-pop_0.35s_ease-out]"
-              : "border-gray-200 bg-white hover:border-gray-300 opacity-80"
+              ? "border-2 border-[#A9812F] bg-gradient-to-br from-[#FFFDF9] via-[#FDF9F0] to-[#F5EAD4] shadow-[0_8px_20px_-6px_rgba(169,129,47,0.25)] scale-[1.01]"
+              : "border border-gray-200 bg-white hover:border-[#A9812F]/50 opacity-85 hover:opacity-100"
           }`}
         >
+          {/* Top Metallic Tag */}
+          <div className="absolute top-0 right-0 bg-gradient-to-l from-[#A9812F] to-[#C59B3F] text-white text-[9.5px] font-extrabold uppercase px-3 py-1 rounded-bl-xl tracking-wider shadow-sm">
+            Recommended
+          </div>
+
           {selectedOption === "prepaid" && <ParticleBurst />}
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[12px] font-bold text-[#A9812F] uppercase tracking-wide">
-              Prepaid (Recommended)
-            </span>
-            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-transform ${
-              selectedOption === "prepaid" ? "border-[#A9812F] bg-[#A9812F] scale-110" : "border-gray-300"
-            }`}>
-              {selectedOption === "prepaid" && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+
+          <div className="flex items-center justify-between mb-1.5 pr-20">
+            <span className="text-[14px] font-extrabold text-[#7A5B1E] uppercase tracking-wide flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-[#A9812F]/15 text-[#A9812F] flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-[#A9812F]" />
+              </span>
+              Prepaid Order
             </span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[22px] font-bold text-[#221D16] tracking-tight">₹{prepaidPrice}</span>
-            <span className="text-[11px] text-[#2E7D32] font-semibold">Free Delivery</span>
+
+          <div className="flex items-baseline gap-2 my-0.5">
+            <span className="text-[24px] sm:text-[26px] font-extrabold text-[#1B1712] tracking-tight">
+              ₹{prepaidPrice}
+            </span>
+            <span className="inline-flex items-center gap-0.5 text-[11px] text-[#2E7D32] font-bold bg-[#2E7D32]/10 px-2 py-0.5 rounded-md">
+              Free Delivery
+            </span>
           </div>
-          <p className="text-[11.5px] text-[#4A4238]/80 mt-0.5 font-normal">Fastest dispatch & zero extra fees</p>
+
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#A9812F]/15 text-[11.5px] text-[#4A4238]">
+            <span className="font-bold flex items-center gap-1.5 text-[#5C4827]">
+              <Zap className="w-3.5 h-3.5 text-orange-400 fill-orange-600" />
+              Fastest Dispatch & Zero Extra Fees
+            </span>
+            <span/>
+            <span
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                selectedOption === "prepaid"
+                  ? "border-[#A9812F] bg-[#A9812F] text-white shadow-sm"
+                  : "border-gray-300 bg-white"
+              }`}
+            >
+              {selectedOption === "prepaid" && <Check className="w-3 h-3 stroke-[3]" />}
+            </span>
+          </div>
         </button>
 
-        {/* COD Option Card */}
+        {/* CASH ON DELIVERY CARD */}
         <button
           type="button"
           onClick={() => setSelectedOption("cod")}
-          className={`relative text-left p-3.5 rounded-xl border-2 transition-all duration-200 flex flex-col justify-between overflow-hidden ${
+          className={`relative text-left p-4 rounded-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer ${
             selectedOption === "cod"
-              ? "border-[#A9812F] bg-[#FDFBF7] shadow-md scale-[1.01] animate-[card-pop_0.35s_ease-out]"
-              : "border-gray-200 bg-white hover:border-gray-300 opacity-80"
+              ? "border-2 border-[#A9812F] bg-[#FDFBF7] shadow-[0_8px_20px_-6px_rgba(169,129,47,0.2)] scale-[1.01]"
+              : "border border-gray-200 bg-white hover:border-gray-300 opacity-80 hover:opacity-100"
           }`}
         >
           {selectedOption === "cod" && <ParticleBurst />}
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[12px] font-bold text-gray-600 uppercase tracking-wide">
+
+          <div className="flex items-center justify-between mb-1.5">
+           <span className="text-[14px] font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                <Banknote className="w-4 h-4 text-black" />
+              </span>
               Cash On Delivery
             </span>
-            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-transform ${
-              selectedOption === "cod" ? "border-[#A9812F] bg-[#A9812F] scale-110" : "border-gray-300"
-            }`}>
-              {selectedOption === "cod" && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+          </div>
+
+          <div className="flex items-baseline gap-2 my-0.5">
+            <span className="text-[24px] sm:text-[26px] font-extrabold text-[#1B1712] tracking-tight">
+              ₹{codPrice}
+            </span>
+            {codCharge > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-[11px] text-gray-900 font-bold bg-gray-100 px-2 py-0.5 rounded-md">
+                (+₹{codCharge} COD Charge)
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 text-[11.5px] text-[#4A4238]">
+            <span className="font-bold text-[rgb(61,53,46)] flex items-center gap-1.5">
+              <HandCoins className="w-4 h-4 text-[#A9812F]" />
+              Pay cash at the time of delivery
+            </span>
+            <span
+              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                selectedOption === "cod"
+                  ? "border-[#A9812F] bg-[#A9812F] text-white shadow-sm"
+                  : "border-gray-300 bg-white"
+              }`}
+            >
+              {selectedOption === "cod" && <Check className="w-3 h-3 stroke-[3]" />}
             </span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-[22px] font-bold text-[#221D16] tracking-tight">₹{codPrice}</span>
-            <span className="text-[11px] text-gray-500 font-medium">(+₹{codCharge} COD Fee)</span>
-          </div>
-          <p className="text-[11.5px] text-[#4A4238]/80 mt-0.5 font-normal">Pay after receiving order</p>
         </button>
       </div>
     </div>
@@ -357,7 +437,7 @@ export default function ProductDetails() {
       <div className="max-w-[1180px] mx-auto px-[18px] md:px-8 py-6 md:py-10 pb-28 md:pb-10">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="mb-6 md:mb-8 font-sans">
-          <ol className="flex items-center flex-wrap gap-1.5 text-[12px] text-[#4A4238]/70">
+          <ol className="flex items-center font-medium flex-wrap gap-1.5 text-[14px] text-[#4A4238]/70">
             <li>
               <Link to="/" className="hover:text-[#221D16] transition-colors duration-150">
                 Home
@@ -394,7 +474,7 @@ export default function ProductDetails() {
             </h1>
 
             {product.smallDescription && (
-              <p className="text-[14.5px] leading-relaxed text-[#4A4238] -mt-2 font-normal">
+              <p className="text-[14.5px] leading-relaxed text-[#4A4238] -mt-2 font-medium">
                 {product.smallDescription}
               </p>
             )}
@@ -456,7 +536,7 @@ export default function ProductDetails() {
                 <h2 className="text-[16px] font-bold text-[#1B1712] tracking-tight">
                   About Product
                 </h2>
-                <p className="text-[14px] leading-relaxed text-[#4A4238] font-normal">{product.description}</p>
+                <p className="text-[14.5px] leading-relaxed text-[#4A4238]  font-medium">{product.description}</p>
               </div>
             )}
 
@@ -472,7 +552,7 @@ export default function ProductDetails() {
                       <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#A9812F]/12 text-[#A9812F]">
                         <Check className="h-2.5 w-2.5" strokeWidth={2.5} />
                       </span>
-                      <span className="text-[14px] leading-relaxed text-[#4A4238] font-normal">{benefit}</span>
+                      <span className="text-[14.5px] leading-relaxed text-[#4A4238]  font-medium">{benefit}</span>
                     </li>
                   ))}
                 </ul>
