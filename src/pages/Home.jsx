@@ -11,21 +11,24 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Play,
+  Pause,
+  Maximize2,
 } from "lucide-react";
 import TrendingProducts from "./TrendingProducts";
 import { fetchVideos } from "../services/api";
 import Reviews from "./Reviews";
 
 /* ============================================================
-   CONSTANTS
+    CONSTANTS
 ============================================================ */
-const WA_PHONE_NUMBER = "+918891900699";
+const WA_PHONE_NUMBER = "+917306024264";
 const WA_FULL_TEXT = "Hello! Do you need any assistance?";
 const WA_DEFAULT_MESSAGE = encodeURIComponent("Hello! I need some assistance.");
 const WA_URL = `https://wa.me/${WA_PHONE_NUMBER}?text=${WA_DEFAULT_MESSAGE}`;
 
 /* ============================================================
-   WHATSAPP ASSISTANT FLOATING BUTTON
+    WHATSAPP ASSISTANT FLOATING BUTTON
 ============================================================ */
 function WhatsAppAssistant() {
   const [displayedText, setDisplayedText] = useState("");
@@ -71,12 +74,15 @@ function WhatsAppAssistant() {
 }
 
 /* ============================================================
-   MOBILE SINGLE VIDEO CARD
+    MOBILE SINGLE VIDEO CARD
 ============================================================ */
 function MobileVideoCard({ video }) {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
+  const hideTimeoutRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
     const node = containerRef.current;
@@ -86,10 +92,12 @@ function MobileVideoCard({ video }) {
       ([entry]) => {
         if (entry.isIntersecting) {
           videoRef.current?.play().catch(() => {});
+          setIsPlaying(true);
         } else {
           if (videoRef.current) {
             videoRef.current.pause();
             videoRef.current.currentTime = 0;
+            setIsPlaying(false);
           }
         }
       },
@@ -103,9 +111,41 @@ function MobileVideoCard({ video }) {
     };
   }, []);
 
+  // Handle auto-hide controls after 5 seconds
+  useEffect(() => {
+    if (showControls) {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 5000);
+    }
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, [showControls]);
+
+  const handleContainerClick = () => {
+    setShowControls((prev) => {
+      const next = !prev;
+      if (next && hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      return next;
+    });
+  };
+
+  const togglePlay = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  };
+
   const toggleMute = (e) => {
     e.stopPropagation();
-    e.preventDefault();
     if (videoRef.current) {
       const nextMuted = !isMuted;
       videoRef.current.muted = nextMuted;
@@ -116,12 +156,20 @@ function MobileVideoCard({ video }) {
     }
   };
 
+  const toggleFullscreen = (e) => {
+    e.stopPropagation();
+    if (videoRef.current?.requestFullscreen) {
+      videoRef.current.requestFullscreen();
+    }
+  };
+
   const productId = video?.linkedProductId?._id || video?.linkedProductId;
 
   return (
     <div
       ref={containerRef}
-      className="snap-center shrink-0 w-[240px] h-[380px] relative rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col justify-between transition-all duration-300"
+      onClick={handleContainerClick}
+      className="snap-center shrink-0 w-[240px] h-[380px] relative rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col justify-between transition-all duration-300 cursor-pointer"
     >
       <video
         ref={videoRef}
@@ -132,36 +180,61 @@ function MobileVideoCard({ video }) {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* TOP BAR BADGE */}
-      <div className="relative z-20 flex items-center justify-between p-3 bg-gradient-to-b from-black/60 to-transparent">
-        <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4AF37] via-[#B57A25] to-[#8C5B18] text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md border border-amber-200/30">
+      {/* DARK BACKGROUND OVERLAY WHEN CONTROLS ARE SHOWN */}
+      <div 
+        className={`absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-none z-10 ${
+          showControls ? "opacity-100" : "opacity-0"
+        }`} 
+      />
+
+      {/* TOP BAR: BEST SELLER WITH BLUR & FULLSCREEN CLEAR */}
+      <div className="relative z-30 flex items-center justify-between p-3 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+        <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4AF37]/80 via-[#B57A25]/80 to-[#8C5B18]/80 text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md border border-amber-200/30">
           <Sparkles className="w-3 h-3 text-amber-100 fill-amber-100 animate-pulse" />
           <span>Best Seller</span>
         </div>
+
+        {showControls && (
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label="Fullscreen"
+            className="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 border border-white/20 transition shadow-lg"
+          >
+            <Maximize2 className="w-4 h-4 text-white" />
+          </button>
+        )}
       </div>
 
-      {/* SOUND TOGGLE BUTTON */}
-      <div className="absolute bottom-4 right-3 z-30">
-        <button
-          type="button"
-          onClick={toggleMute}
-          aria-label={isMuted ? "Unmute sound" : "Mute sound"}
-          className="flex items-center justify-center w-9 h-9 rounded-full bg-black/30 text-white hover:bg-black/70 backdrop-blur-md border border-white/30 shadow-lg active:scale-90 transition-all duration-200"
-        >
-          {isMuted ? (
-            <VolumeX className="w-4 h-4 text-white" />
-          ) : (
-            <Volume2 className="w-4 h-4 text-white" />
-          )}
-        </button>
-      </div>
+      {/* BOTTOM OVERLAY CONTROLS */}
+      {showControls && (
+        <div className="absolute bottom-4 inset-x-3 z-30 flex items-center justify-between pointer-events-none animate-fadeIn">
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 border border-white/20 transition shadow-lg"
+          >
+            {isPlaying ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute" : "Mute"}
+            className="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 border border-white/20 transition shadow-lg"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
+          </button>
+        </div>
+      )}
 
       {/* MOBILE SHOP NOW BUTTON OVERLAY AT BOTTOM */}
       <div className="relative z-20 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col items-center gap-2">
         {productId ? (
           <Link
             to={`/products/${productId}`}
-            className="group relative inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-black/30 hover:bg-black/70 text-white font-bold text-xs border border-white/20 hover:border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden"
+            className="group relative inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-black/60 hover:bg-black/80 text-white font-bold text-xs border border-white/20 hover:border-white/30 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
             <span className="relative z-10 text-white font-bold tracking-wide">
@@ -183,7 +256,7 @@ function MobileVideoCard({ video }) {
 }
 
 /* ============================================================
-   VIDEO SHOWCASE SKELETON LOADER
+    VIDEO SHOWCASE SKELETON LOADER
 ============================================================ */
 function HeroVideoSkeleton({ isMobile }) {
   if (isMobile) {
@@ -220,15 +293,18 @@ function HeroVideoSkeleton({ isMobile }) {
 }
 
 /* ============================================================
-   HERO VIDEO SHOWCASE
+    HERO VIDEO SHOWCASE
 ============================================================ */
 function HeroVideoShowcase() {
   const desktopVideoRef = useRef(null);
   const mobileContainerRef = useRef(null);
+  const hideTimeoutRef = useRef(null);
 
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDesktopMuted, setIsDesktopMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showControls, setShowControls] = useState(false);
   const [touchStartX, setTouchStartX] = useState(0);
 
   const [isMobile, setIsMobile] = useState(
@@ -250,6 +326,27 @@ function HeroVideoShowcase() {
       })
       .catch((err) => console.error("Error fetching videos:", err));
   }, []);
+
+  // Handle auto-hide desktop controls after 5 seconds
+  useEffect(() => {
+    if (showControls) {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 5000);
+    }
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, [showControls]);
+
+  const handleDesktopContainerClick = () => {
+    setShowControls((prev) => {
+      const next = !prev;
+      if (next && hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      return next;
+    });
+  };
 
   const currentVideo = videos[currentIndex];
 
@@ -273,11 +370,23 @@ function HeroVideoShowcase() {
 
     el.muted = isDesktopMuted;
     el.play().catch(() => {});
+    setIsPlaying(true);
   }, [currentIndex, currentVideo, isMobile, isDesktopMuted]);
+
+  const toggleDesktopPlay = (e) => {
+    e?.stopPropagation();
+    if (!desktopVideoRef.current) return;
+    if (isPlaying) {
+      desktopVideoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      desktopVideoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  };
 
   const toggleDesktopMute = (e) => {
     e?.stopPropagation();
-    e?.preventDefault();
     if (desktopVideoRef.current) {
       const nextMuted = !isDesktopMuted;
       desktopVideoRef.current.muted = nextMuted;
@@ -285,6 +394,13 @@ function HeroVideoShowcase() {
       if (!nextMuted) {
         desktopVideoRef.current.play().catch(() => {});
       }
+    }
+  };
+
+  const toggleFullscreen = (e) => {
+    e?.stopPropagation();
+    if (desktopVideoRef.current?.requestFullscreen) {
+      desktopVideoRef.current.requestFullscreen();
     }
   };
 
@@ -326,7 +442,8 @@ function HeroVideoShowcase() {
       ) : (
         <div className="flex flex-col items-center gap-6">
           <div
-            className="relative w-[360px] h-[550px] md:w-[400px] md:h-[500px] transition-all duration-300 select-none"
+            className="relative w-[360px] h-[550px] md:w-[400px] md:h-[500px] transition-all duration-300 select-none cursor-pointer"
+            onClick={handleDesktopContainerClick}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
@@ -347,14 +464,61 @@ function HeroVideoShowcase() {
                   className="w-full h-full object-cover"
                 />
 
-                <div className="absolute top-3 left-3 inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4AF37] via-[#B57A25] to-[#8C5B18] text-white px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wider uppercase shadow-lg shadow-amber-950/30 border border-amber-200/40 backdrop-blur-md z-10">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-100 fill-amber-100 animate-pulse" />
-                  <span>Best Seller</span>
+                {/* DARK BACKGROUND OVERLAY WHEN CONTROLS ARE SHOWN */}
+                <div 
+                  className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-none z-10 ${
+                    showControls ? "opacity-100" : "opacity-0"
+                  }`} 
+                />
+
+                {/* TOP BAR: BADGE & FULLSCREEN (TOP RIGHT) */}
+                <div className="absolute top-3 inset-x-3 flex items-center justify-between z-20 pointer-events-none">
+                  <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D4AF37] via-[#B57A25] to-[#8C5B18] text-white px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wider uppercase shadow-lg shadow-amber-950/30 border border-amber-200/40 backdrop-blur-md">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-100 fill-amber-100 animate-pulse" />
+                    <span>Best Seller</span>
+                  </div>
+
+                  {showControls && (
+                    <button
+                      type="button"
+                      onClick={toggleFullscreen}
+                      aria-label="Fullscreen"
+                      className="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 border border-white/20 transition shadow-lg"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
+
+                {/* BOTTOM CONTROLS OVERLAY (PAUSE ON BOTTOM-LEFT, MUTE/UNMUTE ON BOTTOM-RIGHT) */}
+                {showControls && (
+                  <div className="absolute bottom-12 inset-x-4 z-30 flex items-center justify-between pointer-events-none animate-fadeIn">
+                    <button
+                      type="button"
+                      onClick={toggleDesktopPlay}
+                      aria-label={isPlaying ? "Pause" : "Play"}
+                      className="pointer-events-auto w-9 h-9 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 border border-white/20 transition shadow-lg"
+                    >
+                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={toggleDesktopMute}
+                      aria-label={isDesktopMuted ? "Unmute sound" : "Mute sound"}
+                      className="pointer-events-auto w-9 h-9 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 border border-white/20 transition shadow-lg"
+                    >
+                      {isDesktopMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    </button>
+                  </div>
+                )}
 
                 <button
                   type="button"
-                  onClick={handlePrev}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrev();
+                  }}
                   aria-label="Previous video"
                   className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 active:scale-90 transition-all z-20"
                 >
@@ -363,36 +527,26 @@ function HeroVideoShowcase() {
 
                 <button
                   type="button"
-                  onClick={handleNext}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNext();
+                  }}
                   aria-label="Next video"
                   className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#1B1712]/60 text-white backdrop-blur-sm hover:bg-[#1B1712]/85 active:scale-90 transition-all z-20"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
 
-                {/* BOTTOM RIGHT MUTE BUTTON (DESKTOP) */}
-                <div className="absolute bottom-3 right-3 flex items-center gap-2 z-30">
-                  <button
-                    type="button"
-                    onClick={toggleDesktopMute}
-                    aria-label={isDesktopMuted ? "Unmute sound" : "Mute sound"}
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-black/60 text-gray-200 hover:text-white backdrop-blur-md border border-white/20 shadow-md hover:bg-black/80 hover:scale-105 active:scale-90 transition-all duration-200"
-                  >
-                    {isDesktopMuted ? (
-                      <VolumeX className="w-4 h-4 text-gray-300" />
-                    ) : (
-                      <Volume2 className="w-4 h-4 text-gray-100" />
-                    )}
-                  </button>
-                </div>
-
                 {/* SLIDE INDICATORS */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
                   {videos.map((_, index) => (
                     <button
                       key={index}
                       type="button"
-                      onClick={() => handleSelectIndex(index)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectIndex(index);
+                      }}
                       aria-label={`Go to slide ${index + 1}`}
                       className={`h-2 rounded-full transition-all duration-300 ${
                         currentIndex === index
@@ -436,7 +590,7 @@ function HeroVideoShowcase() {
 }
 
 /* ============================================================
-   HERO MAIN COMPONENT
+    HERO MAIN COMPONENT
 ============================================================ */
 export default function Hero() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -537,7 +691,7 @@ export default function Hero() {
                   <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
                 <span className="text-[11px] sm:text-[13px] font-semibold text-[#221C18] tracking-tight leading-tight">
-                  No Login Needed
+                  100% Original Products
                 </span>
               </div>
 

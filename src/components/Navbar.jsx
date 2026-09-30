@@ -57,7 +57,7 @@ function TrustStrip() {
   }, []);
 
   return (
-    <div className="relative h-10 flex items-center justify-center bg-[#17130F] border-b border-[#C9A75A]/20 overflow-hidden select-none">
+    <div className="relative h-10 flex items-center justify-center bg-black border-b border-[#C9A75A]/20 overflow-hidden select-none">
       <div className="relative h-full w-full max-w-4xl flex items-center justify-center px-4">
         {TRUST_ITEMS.map((item, i) => {
           const ItemIcon = item.icon;
