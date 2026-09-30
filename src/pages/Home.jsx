@@ -158,8 +158,14 @@ function MobileVideoCard({ video }) {
 
   const toggleFullscreen = (e) => {
     e.stopPropagation();
-    if (videoRef.current?.requestFullscreen) {
-      videoRef.current.requestFullscreen();
+    const el = videoRef.current;
+    if (!el) return;
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
     }
   };
 
@@ -175,6 +181,7 @@ function MobileVideoCard({ video }) {
         ref={videoRef}
         src={video?.videoUrl}
         playsInline
+        webkit-playsinline="true"
         loop
         muted={isMuted}
         className="absolute inset-0 w-full h-full object-cover"
@@ -399,8 +406,14 @@ function HeroVideoShowcase() {
 
   const toggleFullscreen = (e) => {
     e?.stopPropagation();
-    if (desktopVideoRef.current?.requestFullscreen) {
-      desktopVideoRef.current.requestFullscreen();
+    const el = desktopVideoRef.current;
+    if (!el) return;
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
     }
   };
 
@@ -461,6 +474,7 @@ function HeroVideoShowcase() {
                   loop
                   muted={isDesktopMuted}
                   playsInline
+                  webkit-playsinline="true"
                   className="w-full h-full object-cover"
                 />
 
